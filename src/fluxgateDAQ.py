@@ -102,7 +102,7 @@ class fluxgateLJ:
 
         """
 
-        self.filename = f'fluxgate_{datetime.now().strftime("%y%m%d%H%M%S")}.csv'
+        self.filename = f'fluxgate_{datetime.now().strftime("20%y-%m-%d_%H.%M.%S")}.csv'
 
         with open(self.filename, 'w', newline='') as csvfile:
             csvfile.write("X,Y,Z\n")

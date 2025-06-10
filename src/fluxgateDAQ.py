@@ -27,9 +27,10 @@ class fluxgateLJ:
     """Low-level readback from Labjack DAQ module via USB
 
     Attributes:
-
         ch: (tuple): channel addresses for analog inputs
         handle (int): handle for sending info to labjack. Output of ljm.openS
+        csv_log (bool): controls csv logging of measurements
+        filename: name of csv file to log to
     """
 
     def __init__(self, fluxgate_name=None, LJ_type='T7', LJ_connection='USB', LJ_id='ANY',
@@ -92,6 +93,7 @@ class fluxgateLJ:
         # read data
         dat = np.array(ljm.eReadAddresses(self.handle, nchannels, self.ch, dataTypes))
 
+        # write a line to csv file if csv_log enabled
         if self.csv_log == True:
             self.log_csv(dat)
 
@@ -104,6 +106,7 @@ class fluxgateLJ:
 
         self.filename = f'fluxgate_{datetime.now().strftime("20%y-%m-%d_%H.%M.%S")}.csv'
 
+        # write header of csv file
         with open(self.filename, 'w', newline='') as csvfile:
             csvfile.write("X,Y,Z\n")
     
@@ -112,9 +115,9 @@ class fluxgateLJ:
         """Write np array to newline in the csv file
 
         Args:
-            filename (str): name of file to write
-            notes: things to add to file header
+            data (np array): data to be written to the csv file
         """
+        # write newline into csv file
         try:
             with open(self.filename, 'a', newline='') as csvfile:
                 writer = csv.writer(csvfile)

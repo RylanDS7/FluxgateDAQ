@@ -14,8 +14,8 @@ Requires install of the following:
 
 import numpy as np
 import pandas as pd
-import time
 from datetime import datetime
+import csv
 
 # import labjack-ljm
 try:
@@ -33,7 +33,7 @@ class fluxgateLJ:
     """
 
     def __init__(self, fluxgate_name=None, LJ_type='T7', LJ_connection='USB', LJ_id='ANY',
-                 fluxgate_nbytes=1000):
+                 fluxgate_nbytes=1000, csv_log=False):
         """Initialize object: connect
 
         Args:
@@ -50,6 +50,13 @@ class fluxgateLJ:
         self.handle = ljm.openS(deviceType=LJ_type,
                                 connectionType=LJ_connection,
                                 identifier=LJ_id)
+        
+        # start logging csv
+        if csv_log == True:
+            self.init_csv()
+            self.csv_log = True
+        else:
+            self.csv_log = False
         
 
     def setup(self, x=0, y=1, z=2):
@@ -73,6 +80,7 @@ class fluxgateLJ:
 
     def read_single(self):
         """Read single set of values from device. Use read_data get a longer sequence
+        Logs to csv file as well if csv_log was set true upon init
 
         Returns:
             np.ndarray: fields in uT
@@ -84,60 +92,32 @@ class fluxgateLJ:
         # read data
         dat = np.array(ljm.eReadAddresses(self.handle, nchannels, self.ch, dataTypes))
 
+        if self.csv_log == True:
+            self.log_csv(dat)
+
         return dat
 
-    def to_csv(self, filename=None, *notes):
-        """Write data to csv, if no filename, use default
+    def init_csv(self):
+        """Initialize csv file
+
+        """
+
+        self.filename = f'fluxgate_{datetime.now().strftime("%y%m%d%H%M%S")}.csv'
+
+        with open(self.filename, 'w', newline='') as csvfile:
+            csvfile.write("X,Y,Z\n")
+    
+
+    def log_csv(self, data):
+        """Write np array to newline in the csv file
 
         Args:
             filename (str): name of file to write
             notes: things to add to file header
         """
-
-        # set default file name
-        if filename is None:
-            t = datetime.now()
-            filename = f'fluxgate_{datetime.strftime("%y%m%d%H%M%S")}.csv'
-
-        # make dataframe
-        df = self.field
-        self.update_status()
-
-        # write file header
-        header = [ '# fluxgate analog data',
-                   '# ',
-                  f'# Field zeroed:    {self.led["field zeroed (LED4)"]}',
-                  f'# Laser lock:      {self.led["laser lock (LED3)"]}',
-                  f'# Cell T lock:     {self.led["cell temp lock (LED2)"]}',
-                  f'# Laser on:        {self.led["laser on (LED1)"]}',
-                  '#',
-                  f'# Cell T error:    {self.sensor_par["cell temp error"]}',
-                  f'# Bz field:        {self.sensor_par["Bz field (pT)"]:.4f} pT',
-                  f'# By field:        {self.sensor_par["By field (pT)"]:.4f} pT',
-                  f'# B0 field:        {self.sensor_par["B0 field (pT)"]:.4f} pT',
-                   '#',
-                  ]
-
-        if notes:
-            notes = [f'#\t{note}' for note in notes]
-            header.extend(['# Notes', *notes, '#'])
-
-        header.extend([f'# {datetime.now()}', '# \n'])
-
-        with open(filename, 'w') as fid:
-            fid.write('\n'.join(header))
-
-        # write data
-        df.to_csv(filename, mode='a', index=False)
-
-
-
-def main():
-    fg = fluxgateLJ("fluxgate")
-    fg.setup(x=1,y=0,z=2)
-    dat = fg.read_single()
-    print(dat)
-
-
-if __name__=="__main__":
-    main()
+        try:
+            with open(self.filename, 'a', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(data.tolist())
+        except Exception as e:
+            print(f"An error occurred: {e}")

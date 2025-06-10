@@ -46,14 +46,14 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(widget)
 
-        self.fg = fluxgateLJ("fluxgate")
+        self.fg = fluxgateLJ("fluxgate", csv_log=True)
         self.fg.setup(x=0,y=1,z=2)
 
 
     def spacebarPressed(self, event):
         if isinstance(event, QKeyEvent):
             self.measure
-            
+
     def measure(self):
         dat = self.fg.read_single()
 

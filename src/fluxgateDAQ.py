@@ -114,14 +114,14 @@ class fluxgateLJ:
 
         # write header of csv file
         if self.increment != 0:
-            with open(self.filename, 'w', newline='') as csvfile:
+            with open(f"data/{self.filename}", 'w', newline='') as csvfile:
                 csvfile.write(datetime.now().strftime("20%y-%m-%d, %H:%M:%S\n\n"))
-                csvfile.write("Position (cm), B_x (uT), B_y (uT), B_z (uT)\n")
+                csvfile.write("Position (cm),B_x (uT),B_y (uT),B_z (uT)\n")
 
         else:
-            with open(self.filename, 'w', newline='') as csvfile:
+            with open("data/{self.filename}", 'w', newline='') as csvfile:
                 csvfile.write(datetime.now().strftime("20%y-%m-%d, %H:%M:%S\n\n"))
-                csvfile.write("B_x (uT), B_y (uT), B_z (uT)\n")
+                csvfile.write("B_x (uT),B_y (uT),B_z (uT)\n")
                 
         
         self.position = 0
@@ -142,7 +142,7 @@ class fluxgateLJ:
 
         # write newline into csv file
         try:
-            with open(self.filename, 'a', newline='') as csvfile:
+            with open(f"data/{self.filename}", 'a', newline='') as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerow(data.tolist())
         except Exception as e:

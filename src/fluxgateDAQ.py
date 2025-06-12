@@ -35,18 +35,15 @@ class fluxgateLJ:
         position (float): current position of the measurement
     """
 
-    def __init__(self, fluxgate_name=None, LJ_type='T7', LJ_connection='USB', LJ_id='ANY',
-                 fluxgate_nbytes=1000, csv_log=False, increment=1):
+    def __init__(self, LJ_type='T7', LJ_connection='USB', LJ_id='ANY',
+                 conversion_factor=100, csv_log=False, increment=0, ):
         """Initialize object: connect
 
         Args:
-            fluxgate_name (str): name of device to look for (connection)
-                             for windows this is likely COM3 or COM5
-                             for linux, search Z3T0 or similar
             LJ_type (str): passed to ljm.openS, model type
             LJ_connection (str): passed to ljm.openS, connection type. USB|ANY|ETHERNET
             LJ_identifier (str): passed to ljm.openS, device id
-            fluxgate_nbytes (int): serial read chunk size in bytes for status updates
+            conversion_factor (int): conversion factor for fluxgate model in uT/V
             csv_log (bool): controls whether measurements are logged to csv
             increment (float): number of centimeters each measurement is seperated by; set to 0 if not used
         """
@@ -57,6 +54,7 @@ class fluxgateLJ:
                                 identifier=LJ_id)
         
         self.increment = increment
+        self.conversion_factor = conversion_factor
         
         # start logging csv
         if csv_log == True:
@@ -98,7 +96,8 @@ class fluxgateLJ:
 
         # read data
         dat = np.array(ljm.eReadAddresses(self.handle, nchannels, self.ch, dataTypes))
-
+        dat = dat * self.conversion_factor
+        
         # write a line to csv file if csv_log enabled
         if self.csv_log == True:
             self.log_csv(dat)

@@ -38,24 +38,29 @@ def clean_fluxgate_field(input_up, input_down):
     df_d = pd.read_csv(path_down, header=1)
 
     df = pd.DataFrame()
-    df["Pos"] = df_u["Position (cm)"] - 12.5
-    df["B"] = (df_u["B_y (uT)"] - df_d["B_y (uT)"]) / 2
+    df["Pos"] = df_u["Position (cm)"] - 10
+    df["B"] = (df_u["B_x (uT)"] - df_d["B_x (uT)"]) / 2
     
     return df
 
 def interp_field(df, x):
     for i in range(len(df)):
+        if df[0][i] == x:
+            return df[1][i]
         if df[0][i] > x:
             m = (df[1][i] - df[1][i-1]) / (df[0][i] - df[0][i-1])
             return m * (x - df[0][i - 1]) + df[1][i-1]
 
 
-df_c = clean_COMSOL_field("testCoilBz.txt", 24.33, 100)
-df_f = clean_fluxgate_field("fluxgate_2025-08-25_12.16.05.csv", "fluxgate_2025-08-25_12.12.27.csv")
+df_c = clean_COMSOL_field("V7coil1A.txt", 10, 100)
+print(df_c)
+
+df_f = clean_fluxgate_field("fluxgate_2025-07-17_10.19.33.csv", "fluxgate_2025-07-17_10.28.05.csv")
+print(df_f)
 
 residuals = []
 for i in range(len(df_f)):
     residual = interp_field(df_c, df_f["Pos"][i]) - df_f["B"][i]
     residuals.append(residual)
 
-print(max(abs(np.array(residuals))))
+print(pd.DataFrame(residuals))

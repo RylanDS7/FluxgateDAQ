@@ -70,19 +70,18 @@ def measured_residuals(df1, df2):
 field_flg = reverse_field(extract_field("fluxgate_2025-09-23_14.10.26.csv", "fluxgate_2025-09-23_14.14.21.csv"))
 field_ctr = extract_field("fluxgate_2025-08-25_12.12.27.csv", "fluxgate_2025-08-25_12.16.05.csv")
 residuals = measured_residuals(field_ctr, field_flg)
-field_sim = clean_COMSOL_field("testCoilBz.txt", 12, 100, 0, 25)
-print(field_sim)
+# field_sim = clean_COMSOL_field("testCoilBz.txt", 12, 100, 0, 25)
 
 fig, ax = plt.subplots()
 
 ax.scatter(get_dfcol(field_flg, 0), get_dfcol(field_flg, 2), label='At Flange')
 ax.scatter(get_dfcol(field_ctr, 0), get_dfcol(field_ctr, 2), label='At Center')
 ax.scatter(get_dfcol(residuals, 0), get_dfcol(residuals, 2)*10, label='Residuals * 10')
-ax.scatter(get_dfcol(field_sim, 0), get_dfcol(field_sim, 1), label='Simulated', s=5)
+# ax.scatter(get_dfcol(field_sim, 0), get_dfcol(field_sim, 1), label='Simulated', s=5)
 
-ax.set_xlabel('Position (cm)')
-ax.set_ylabel('B_y (uT)')
-ax.legend()
+ax.set_xlabel('Position (cm)', fontsize=18)
+ax.set_ylabel('B_y (uT)', fontsize=18)
+ax.legend(fontsize=15)
 
 plt.grid()
 plt.show()

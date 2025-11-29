@@ -1,5 +1,5 @@
 """
-Script to background subtract and plot measured magnetic field
+Script to plot COMSOL simulated data against measured fluxgate data
 Rylan Stutters
 Nov 2025
 """
@@ -51,17 +51,32 @@ def clean_COMSOL_field(input, offset, scale, cutL, cutR):
 def get_dfcol(df, i):
      return df.iloc[:, int(i)]
 
+def reverse_field(df):
+    for i in np.linspace(1, 3, 3):
+            col = get_dfcol(df, i)
+            df.iloc[:, int(i)] = col[::-1]
+    return df
+
+def plot_field(df, field_comp="B_y (uT)"):
+    df.plot(0, field_comp, kind="scatter")
+    plt.show(block=False)
+
+def measured_residuals(df1, df2):
+    df = df1 - df2
+    df["Position (cm)"] = df1["Position (cm)"]
+    return df
+
 
 field = extract_field("fluxgate_2025-11-28_16.08.07.csv", "fluxgate_2025-11-28_16.12.26.csv")
+field_sim = clean_COMSOL_field("innerV2AxialField.txt", -11, 100, -20, 100)
 
 fig, ax = plt.subplots()
 
-# ax.scatter(get_dfcol(field, 0), get_dfcol(field, 1), label='Bx (uT)', marker='.')
-ax.scatter(get_dfcol(field, 0), get_dfcol(field, 2), label='By (uT)', marker='.')
-# ax.scatter(get_dfcol(field, 0), get_dfcol(field, 3), label='Bz (uT)', marker='.')
+ax.scatter(get_dfcol(field, 0), get_dfcol(field, 2), label='Measured', s=20)
+ax.scatter(get_dfcol(field_sim, 0), get_dfcol(field_sim, 1), label='Simulated', s=3)
 
 ax.set_xlabel('Position (cm)', fontsize=18)
-ax.set_ylabel('B(uT)', fontsize=18)
+ax.set_ylabel('B_y (uT)', fontsize=18)
 ax.legend(fontsize=15)
 
 plt.grid()

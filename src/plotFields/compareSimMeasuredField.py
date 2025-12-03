@@ -72,12 +72,12 @@ field_sim = clean_COMSOL_field("innerV2AxialField.txt", -11, 100, -20, 100)
 
 fig, ax = plt.subplots()
 
-ax.scatter(get_dfcol(field, 0), get_dfcol(field, 2), label='Measured', s=20)
-ax.scatter(get_dfcol(field_sim, 0), get_dfcol(field_sim, 1), label='Simulated', s=3)
+ax.errorbar(get_dfcol(field, 0), get_dfcol(field, 2), xerr=0.5, yerr=0.15, label='Measured', fmt='o', color="orange")
+ax.scatter(get_dfcol(field_sim, 0), get_dfcol(field_sim, 1), label='Simulated', s=2)
 
-ax.set_xlabel('Position (cm)', fontsize=18)
-ax.set_ylabel('B_y (uT)', fontsize=18)
-ax.legend(fontsize=15)
+ax.set_xlabel('Axial Position (cm)', fontsize=22)
+ax.set_ylabel('Vertical Magnetic Field (uT)', fontsize=22)
+ax.legend(fontsize=18)
 
 plt.grid()
 plt.show()

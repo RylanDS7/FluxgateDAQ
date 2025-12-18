@@ -52,7 +52,7 @@ def get_dfcol(df, i):
      return df.iloc[:, int(i)]
 
 
-field = extract_field("fluxgate_2025-12-18_12.23.28.csv", "fluxgate_2025-12-18_12.27.27.csv")
+field = extract_field("fluxgate_2025-12-18_13.02.29.csv", "fluxgate_2025-12-18_13.08.52.csv")
 
 fig, ax = plt.subplots()
 

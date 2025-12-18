@@ -1,17 +1,18 @@
 """
-Script to plot COMSOL simulated data against measured fluxgate data
+Script to interpolate a COMSOL field to find the residuals between
+simulated and measured field
+Inner coil V2 application
 Rylan Stutters
-Nov 2025
+Dec 2025
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
+import matplotlib.pyplot as plt
 import os
 from io import StringIO
 
-
-def extract_field(file1, file2,):
+def extract_field(file1, file2):
     path1 = os.path.join("data", file1)
     path2 = os.path.join("data", file2)
     df_1 = pd.read_csv(path1, header=1)
@@ -48,32 +49,32 @@ def clean_COMSOL_field(input, offset, scale, cutL, cutR):
     
     return df
 
+def interp_field(df, x):
+    for i in range(len(df)):
+        if df[0][i] == x:
+            return df[1][i]
+        if df[0][i] > x:
+            m = (df[1][i] - df[1][i-1]) / (df[0][i] - df[0][i-1])
+            return m * (x - df[0][i - 1]) + df[1][i-1]
+        
 def get_dfcol(df, i):
      return df.iloc[:, int(i)]
 
-def reverse_field(df):
-    for i in np.linspace(1, 3, 3):
-            col = get_dfcol(df, i)
-            df.iloc[:, int(i)] = col[::-1]
-    return df
-
-def plot_field(df, field_comp="B_y (uT)"):
-    df.plot(0, field_comp, kind="scatter")
-    plt.show(block=False)
-
-def measured_residuals(df1, df2):
-    df = df1 - df2
-    df["Position (cm)"] = df1["Position (cm)"]
-    return df
 
 
 field = extract_field("fluxgate_2025-12-18_13.02.29.csv", "fluxgate_2025-12-18_13.08.52.csv")
 field_sim = clean_COMSOL_field("taperV2axialField.txt", -15, 100, -20, 100)
 
+residuals = []
+for i in range(len(field)):
+    residual = interp_field(field_sim, get_dfcol(field, 0)[i]) - get_dfcol(field, 2)[i]
+    residuals.append(residual)
+
 fig, ax = plt.subplots(figsize=(10,10))
 
-ax.errorbar(get_dfcol(field, 0), get_dfcol(field, 2), xerr=0.5, yerr=0.5, label='Measured', fmt='o', color="orange")
+ax.errorbar(get_dfcol(field, 0), get_dfcol(field, 2), xerr=0.5, yerr=0.3, label='Measured', fmt='o', color="orange")
 ax.scatter(get_dfcol(field_sim, 0), get_dfcol(field_sim, 1), label='Simulated', s=2)
+ax.errorbar(get_dfcol(field, 0), residuals, yerr =0.4, label='Residuals', fmt='o', color="purple")
 
 ax.set_xlabel('Axial Position (cm)', fontsize=24)
 ax.set_ylabel('Vertical Magnetic Field (uT)', fontsize=24)

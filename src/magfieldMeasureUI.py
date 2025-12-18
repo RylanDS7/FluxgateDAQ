@@ -71,7 +71,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(widget)
 
         # initialize fg
-        self.fg = fluxgateLJ(csv_log=True, increment=5)
+        self.fg = fluxgateLJ(csv_log=True, increment=1)
         self.fg.setup(x=0,y=1,z=2)
 
 

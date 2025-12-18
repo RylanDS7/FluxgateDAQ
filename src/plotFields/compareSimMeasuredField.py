@@ -67,12 +67,12 @@ def measured_residuals(df1, df2):
     return df
 
 
-field = extract_field("fluxgate_2025-11-28_16.08.07.csv", "fluxgate_2025-11-28_16.12.26.csv")
-field_sim = clean_COMSOL_field("innerV2AxialField.txt", -11, 100, -20, 100)
+field = extract_field("fluxgate_2025-12-18_12.23.28.csv", "fluxgate_2025-12-18_12.27.27.csv")
+field_sim = clean_COMSOL_field("taperV2outerField.txt", -15.5, 100, -20, 35)
 
 fig, ax = plt.subplots(figsize=(10,10))
 
-ax.errorbar(get_dfcol(field, 0), get_dfcol(field, 2), xerr=0.5, yerr=0.15, label='Measured', fmt='o', color="orange")
+ax.errorbar(get_dfcol(field, 0), get_dfcol(field, 2), xerr=0.5, yerr=0.3, label='Measured', fmt='o', color="orange")
 ax.scatter(get_dfcol(field_sim, 0), get_dfcol(field_sim, 1), label='Simulated', s=2)
 
 ax.set_xlabel('Axial Position (cm)', fontsize=24)
